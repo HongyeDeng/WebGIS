@@ -1,0 +1,63 @@
+-- CREATE TABLE cargo (
+--     cargo_id SERIAL PRIMARY KEY,                -- Primary Key
+--     CargoName VARCHAR(255) NOT NULL,                -- Name of the cargo
+--     CargoType VARCHAR(50) NOT NULL CHECK (CargoType IN ('Normal', 'Overweight', 'Hazardous', 'Frozen')), -- Enum-like constraint for Type
+--     weight DECIMAL NOT NULL,                   -- Weight of the cargo
+--     status VARCHAR(50) NOT NULL, CHECK (status IN('Pending', 'In Transit', 'Arrive')),               -- Status of the cargo
+--     CargoLocation GEOMETRY(Point, 3857),            -- Location as a point in EPSG:3857 (Web Mercator)
+--     description TEXT,                          -- Description of the cargo
+--     associated_orders_id INT -- Foreign Key to Orders
+--     cargo_route, 
+-- );
+
+-- CREATE TABLE trucks (
+--     truck_id SERIAL PRIMARY KEY,               -- Primary Key
+--     TruckName VARCHAR(255) NOT NULL,  			   -- Name of the truck
+-- 	TruckType VARCHAR(50) NOT NULL CHECK (TruckType IN ('Normal', 'Overweight', 'Hazardous', 'Frozen')),
+--     maximum_weight DECIMAL NOT NULL,           -- Maximum weight capacity of the truck
+--     status VARCHAR(50) NOT NULL,               -- Status of the truck
+--     TruckLocation GEOMETRY(Point, 3857),            -- Location as a point in EPSG:3857 (Web Mercator)
+--     driver_id INT,                             -- Driver ID (can be NULL)
+--     associated_orders_id INT  -- Foreign Key to Orders
+--     trucks_route,
+-- );
+
+-- CREATE TABLE orders (
+--     order_id SERIAL PRIMARY KEY,               -- Primary Key
+--     cargo_id INT REFERENCES cargo(cargo_id) ON DELETE CASCADE, -- Foreign Key to Cargo
+--     truck_id INT REFERENCES trucks(truck_id) ON DELETE CASCADE, -- Foreign Key to Trucks
+--     status VARCHAR(50) NOT NULL CHECK (status IN ('Await', 'On Road', 'Accomplish')),               -- Status of the order
+--     origin GEOMETRY(Point, 3857),              -- Origin as a point in EPSG:3857 (Web Mercator)
+--     destination GEOMETRY(Point, 3857),         -- Destination as a point in EPSG:3857 (Web Mercator)
+--     departure_date DATE,                       -- Departure date
+--     arrival_date DATE,                         -- Arrival date
+--     distance DECIMAL                          -- Distance in meters or kilometers
+-- );
+
+-- ALTER TABLE cargo
+-- ADD CONSTRAINT fk_associated_orders
+-- FOREIGN KEY (associated_orders_id)
+-- REFERENCES orders(order_id)
+-- ON DELETE SET NULL
+-- ON UPDATE CASCADE;
+
+-- ALTER TABLE trucks
+-- ADD CONSTRAINT fk_associated_orders_trucks
+-- FOREIGN KEY (associated_orders_id)
+-- REFERENCES orders(order_id)
+-- ON DELETE SET NULL
+-- ON UPDATE CASCADE;
+
+-- ALTER TABLE orders
+-- ADD CONSTRAINT fk_orders_cargo
+-- FOREIGN KEY (cargo_id)
+-- REFERENCES cargo(cargo_id)
+-- ON DELETE CASCADE
+-- ON UPDATE CASCADE;
+
+-- ALTER TABLE orders
+-- ADD CONSTRAINT fk_orders_truck
+-- FOREIGN KEY (truck_id)
+-- REFERENCES trucks(truck_id)
+-- ON DELETE CASCADE
+-- ON UPDATE CASCADE;
