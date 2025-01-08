@@ -18,4 +18,23 @@ Flask 后端数据查询：与Postgres + PostGis进行交互，获取数据库�
 ### 卡车和货物的位置显示
 使用Leaflet.Marker实现，主要代码位于BasicMap.vue。当切换页面时，触发事件监听器，清除Leaflet上所有的Marker后向后端查询所有的卡车（货物），获得返回的Json后根据位置字段将所有Marker放在对应位置。根据卡车（货物）的信息为每个Marker动态创建对应的Popup，使用CreateApp新建一个Vue App作为Popup的content，保证创建的Popup也具有Vue的特性。
 ### 信息的修改
-正常查看状态下无法对信息进行修改，点击Edit后启动修改模式。
+正常查看状态下无法对信息进行修改，点击Edit后启动修改模式。对于某些字段的修改，使用Datalist进行限制，若违规填写将无法进行Submit。点击Submit只会对地图上的Leaflet.Marker进行修改，只有在退出编辑模式时才会将更改统一写入数据库，这种设计方式减少了对数据库Post的次数，避免了反复修改造成的valueless的请求，在数据量巨大的情况下降低数据库负荷。在数据库完成了写入后重新载入被修改的货物（卡车）信息，保证前后端同步。
+### 货物（卡车）的删除操作
+开启删除模式后，双击目标进行删除，后端数据库根据接收到的Id进行对应元组删除。
+### 位置查询
+基于Leaflet Control Geocoder进行实现，在初始化Leaflet.map后将此控件作为Layer加入。在搜索栏内搜索关键字会弹出对应地点信息，选择后地图Viewport移动至对应地点并使用Marker作为准确标记，取消搜索自动删除Marker。（这种用了插件的报告里面凑字数方法：去插件的Github仓库里，问那个copilot，这个东西的功能是怎么实现的）
+### 热力图显示
+对当前Map上显示的卡车（货物）进行热力图可视化，基于Leaflet.Heatmap进行完成。开启热力图模式后，为Leaflet.map添加Heatmap Layer，并在左侧创建热力图控件，可以控制热力图的Radius和Blur参数，根据用户需求做到理想的可视化效果。
+### 路径规划
+使用Leaflet-routing-maching实现，基于OSM的API进行路径规划。（具体实现去他仓库里面问）
+#### 为货物选取目的地
+点击图标选择货物，开启控件面板中的Select Destination按钮后点击地图上任意地点选择目的地。Leaflet-routing-maching进行最优路径查询，返回路径信息后将Leaflet-routing-maching的coords字段转为线要素并以GeoJson格式存储。开启控件面板的Add WayPoints后可进行途径点的添加和删除，点击地图上任意位置添加途径点并可在Leaflet-routing-maching上进行途径点删除。点击Confirm将当前路径信息提交至数据库中。
+#### 为卡车选择货物
+在Truck界面选择Select Cargo后进入为卡车选择货物模式，此时所有的卡车和货物都会显示在地图上。点击卡车图标选择目标卡车，接着点击货物图标为卡车选择目标货物，Leaflte-routing-maching进行最优路径规划后点击confirm将路径提交至后端，并通过外键将Truck和Cargo相关联。当鼠标悬停在货物上时会显示货物对应的路径，此操作通过直接向后端查询货物的route信息并使用Leaflet.Polyline显示，不使用GeoServer加载整个线要素图层降低了加载时间。
+#### 显示所有货物（卡车）的路径
+在左侧栏中选择View Route时，会通过GeoServer获取包含所有路径的线要素图层，通过Leaflet.GeoJson将路径显示在地图上。为每个路径创建Popup，显示路径上卡车与货物的信息。在左侧控制面板中可以根据货物的种类、货物的目的地和出发地对显示的路径进行筛选。
+
+
+
+
+
