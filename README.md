@@ -39,13 +39,14 @@ Flask 后端数据查询：与Postgres + PostGis进行交互，获取数据库�
 
 ## 缺陷
 watch过度使用，进行过度的开发可能会导致代码难以理解与维护。  
-组件间信息的传递过度依赖Props,并在子组件中修改Props违反了单行下向绑定的规定。对于当前业务逻辑简单的情况下子组件通过修改Props去对父组件进行变动是可行的，但当业务逻辑变得复杂之后，这很可能导致更改操作的冲突。在本项目后续的开放中已转为使用emit派发事件来实现子组件对父组件的更改。
+组件间信息的传递过度依赖Props,并在子组件中修改Props违反了单行下向绑定的规定。对于当前业务逻辑简单的情况下子组件通过修改Props去对父组件进行变动是可行的，但当业务逻辑变得复杂之后，这很可能导致更改操作的冲突。在本项目后续的开放中已转为使用emit派发事件来实现子组件对父组件的更改。  
 
-##各文件的功能
+## 各文件的功能
 App.vue 整个网页的入口，负责注册Vue App和各种依赖的组件库  
-Stores/Status.js 基于Piana进行状态管理，存储当前网页的状态并进行跨组件传输  
+Stores/Status.js 基于Piana进行状态管理，存储当前网页的状态并进行跨组件传输   
 layouts/BasicLayout.vue 网页布局，将网页分为Header，Content，Sider，Footer三个部分  
-###Components
+
+### Components
 BasicMap.vue 初始化Leaflet.map，并存储当前页面上显示的所有Marker，为Marker添加增删改查的功能。通过监听Status.js内的变量实现动态改变显示的Sider。（由于刚开始开发较菜，把Truck、Cargo增删改查的代码放这里不太好，但是写都写了就不换位置了）   
 Header_Navigator.vue 对Navigator进行设置  
 HeatmapPane.vue 当使用热力图进行可视化时控制热力图Heatpoint的Radius和Blur  
