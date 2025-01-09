@@ -51,6 +51,13 @@ Header_Navigator.vue 对Navigator进行设置
 HeatmapPane.vue 当使用热力图进行可视化时控制热力图Heatpoint的Radius和Blur  
 InfoForm_Cargoes.vue 显示货物细节信息的面板，绑定在货物Marker的Popup上
 InfoForm_Trucks.vue 显示卡车细节信息的面板，绑定在卡车Marker的Popup上
+RoutePlanning.vue 设置货物目的地并进行路径规划  
+SelectCargo_Truck.vue 为卡车选择要运输的货物  
+SiderMenu_Cargoes.vue 当Navigator中选择Cargoes时要显示的Sider  
+SiderMenu_Trucks.vue 当Navigator选择Trucks时要显示的Sider  
+ViewRoute_Cargoes.vue 显示货物的运输路线  
+ViewRoute_Trucks.vue 显示卡车的运输路线  
+
 
 
 
