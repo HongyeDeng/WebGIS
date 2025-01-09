@@ -18,7 +18,7 @@
         <ViewRoute :map="map" :SelectedMarker="SelectedMarker"/>
       </div>
       <div class="SelecteCargoPane" :width="256" v-show="TruckSelectCargo">
-        <SelectCargo_Truck :map="map" :SelectedMarker="SelectedMarker"/>
+        <SelectCargo_Truck :map="map" :SelectedMarker="SelectedMarker" :ReachabilityLayer="ReachabilityLayer" @Add-Reachability="AddReachabilityControl" @Remove-Reachability="RemoveReachabilityControl"/>
       </div>
       <div class="Truck_ViewRoutePane" :width="256" v-show="Truck_ViewRoute">
         <ViewRoute_Trucks :map="map" :SelectedMarker="SelectedMarker"/>
@@ -750,8 +750,8 @@ const deleteTrucks = async (TruckIDs) => {
   }
 };
 
-
-const Reachability = ref();
+const Reachability = ref(null);
+const ReachabilityLayer = ref(null);
 onMounted(() => {
 
   map.value = L.map("LMap").setView([57.03, 16.02], 3);
@@ -778,17 +778,37 @@ onMounted(() => {
       '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
   }).addTo(map.value);
 
-  // Add the reachability control
+  // Initialize  Reachability Control
   Reachability.value = L.control.reachability({
     apiKey: '5b3ce3597851110001cf62481af82f4307eb44569644ca66b47188a3',
     showOriginMarker: false,
     position: 'topright',
   });
+
   //Routing.addTo(map.value);
   map.value.addControl(searchControl);
-  map.value.addControl(Reachability.value);
 
 });
+
+// Add Reachability control
+
+function AddReachabilityControl() {
+  if (map.value) {
+    map.value.addControl(Reachability.value);
+    map.value.on("reachability:displayed", function (e) {
+      console.log("Reachability Displayed");
+      ReachabilityLayer.value = Reachability.value.latestIsolines;
+    });
+  }
+}
+function RemoveReachabilityControl() {
+  if (map.value) {
+    map.value.removeControl(Reachability.value);
+    map.value.off("reachability:displayed");
+    ReachabilityLayer.value = null;
+  }
+}
+
 </script>
 
 <style scoped>

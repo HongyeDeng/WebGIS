@@ -1,11 +1,15 @@
 <template>
     <div class="container">
+        <div class = "section-container">
+            <p> Reachability </p>
+            <a-switch v-model:checked="ReachabilityMode" size="small" class="switch" />
+        </div>
         <a-button type="primary" @click="HandleConfirm">Confirm</a-button>
     </div>
 </template>
 
 <script setup>
-import { ref, onMounted, defineProps, watch } from "vue";
+import { ref, onMounted, defineProps, watch, defineEmits } from "vue";
 import L from "leaflet";
 import $ from "jquery";
 import { storeToRefs } from "pinia";
@@ -16,6 +20,8 @@ import FrozenLogo from "@/image/frozen.png";
 import OverweightLogo from "@/image/Overweight.png";
 import HazardousLogo from "@/image/Hazardous.png";
 import { Select } from "ant-design-vue";
+import "@/assets/leaflet.reachability.js";
+const leafletPip = require("leaflet-pip");
 var NormalCargoesIcon = L.icon({
     iconUrl: CargoesLogo,
 
@@ -56,7 +62,9 @@ var HazardousCargoesIcon = L.icon({
 const Props = defineProps({
     map: Object,
     SelectedMarker: Object,
+    ReachabilityLayer: Object,
 });
+const emit = defineEmits(['Add-Reachability', 'Remove-Reachability']);
 
 const Truck_SelectCargoMode = Truck_SelectCargo();
 const { status: SelectCargo } = storeToRefs(Truck_SelectCargoMode);
@@ -88,6 +96,15 @@ Routing.value.on("routesfound", function (e) {
     coords.value = e.routes[0].coordinates;
     console.log("Route Found");
 });
+
+// Initial Reachability Analysis
+const ReachabilityMode = ref(false);
+const Reachability = ref(null);
+Reachability.value = L.control.reachability({
+    apiKey: '5b3ce3597851110001cf62481af82f4307eb44569644ca66b47188a3',
+    showOriginMarker: false,
+    position: 'topright',
+  });
 
 // handle the selected marker(Truck)
 watch(
@@ -130,6 +147,47 @@ watch(SelectCargo, async (NewValue) => {
         }
     }
 });
+
+watch(ReachabilityMode, (NewValue) => {
+    if (NewValue) {
+        if (Props.map) {
+            emit('Add-Reachability');
+        }
+    } else {
+        if (Props.map) {
+            emit('Remove-Reachability');
+        }
+    }
+});
+
+watch( ()=> Props.ReachabilityLayer, (NewValue) => {
+    if (NewValue) {
+        if (CargoRouteLayer.value) {
+            CargoRouteLayer.value.eachLayer((layer) => {
+                if (layer instanceof L.Marker) {
+                    const latLng = layer.getLatLng();
+                    let result = leafletPip.pointInLayer(latLng, NewValue);
+                    if (result.length > 0) {
+                        layer.setOpacity(1);
+                    } else {
+                        layer.setOpacity(0.0);
+                    }
+            }
+            });
+        }
+    } else {
+        if (Reachability.value) {
+            Reachability.value.remove();
+            if (CargoRouteLayer.value) {
+                CargoRouteLayer.value.eachLayer((layer) => {
+                    layer.setOpacity(0.5);
+                });
+            }
+        }
+    }
+});
+
+
 function loadWFS(layerName, epsg) {
     var urlString = "http://localhost:8083/geoserver/pgLayer/ows";
     var param = {
@@ -249,6 +307,7 @@ const HandleConfirm = async () => {
 </script>
 
 <style scoped>
+@import "../assets/leaflet.reachability.css";
 .container {
     width: 200px;
     height: 200px;
@@ -256,5 +315,18 @@ const HandleConfirm = async () => {
     flex-direction: column;
     align-items: center;
     justify-content: center;
+    line-height: 15px;
+}
+
+.disabled-section {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-bottom: 10px; /* Adjust the space between text and switch */
+    line-height: 30px;
+}
+
+.switch {
+    margin-bottom: 10px;
 }
 </style>

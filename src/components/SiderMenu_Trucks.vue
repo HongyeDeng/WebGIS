@@ -15,6 +15,7 @@ import {
     DeleteOutlined,
     UploadOutlined,
     SelectOutlined,
+    ArrowRightOutlined
 } from "@ant-design/icons-vue";
 const selectedKeys = ref(["DeleteTrucks"]);
 const openKeys = ref(["sub1"]);
@@ -46,7 +47,7 @@ const items = reactive([
     ]),
     getItem("Navigation Two", "sub2", () => h(AppstoreOutlined), [
         getItem("Select Cargo", "Select Cargo", ()=> h(SelectOutlined)),
-        getItem("View Route", "View Route"),
+        getItem("View Route", "View Route", ()=> h(ArrowRightOutlined)),
     ]),
 ]);
 const handleClick = (e) => {
